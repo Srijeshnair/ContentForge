@@ -9,10 +9,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-500">ContentForge</p>
-            <p className="text-xs text-slate-500">Scalable Vite starter with Tailwind.</p>
+          <div className="flex items-center space-x-4">
+            <p className="text-lg font-bold text-slate-900">ContentForge</p>
           </div>
+          <nav className="flex space-x-6">
+            <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">Home</a>
+            <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">Generator</a>
+          </nav>
         </div>
       </header>
 
