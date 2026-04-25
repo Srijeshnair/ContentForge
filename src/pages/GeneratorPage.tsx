@@ -80,14 +80,12 @@ export default function GeneratorPage() {
             </button>
           </div>
 
-          {/* Generated Content Display */}
           {generatedContent && (
-            <div className="mt-8">
-              <h3 className="text-lg font-medium text-gray-900">Generated Content</h3>
-              <div className="mt-2 rounded-md bg-gray-50 p-4">
-                <p className="text-gray-700 whitespace-pre-wrap">{generatedContent}</p>
-              </div>
-            </div>
+            <OutputCard
+              content={generatedContent}
+              label={contentType ? `${contentTypes.find((item) => item.value === contentType)?.label} Output` : 'Generated Content'}
+              onRegenerate={handleRegenerate}
+            />
           )}
         </div>
       </div>
