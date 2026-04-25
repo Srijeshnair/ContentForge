@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import OutputCard from '../components/OutputCard';
 
 export default function GeneratorPage() {
   const [contentType, setContentType] = useState('');
@@ -14,6 +15,14 @@ export default function GeneratorPage() {
   const handleGenerate = () => {
     // Placeholder for content generation logic
     setGeneratedContent(`Generated ${contentType} about: ${topic}`);
+  };
+
+  const handleRegenerate = () => {
+    if (!contentType || !topic) {
+      return;
+    }
+
+    handleGenerate();
   };
 
   return (
