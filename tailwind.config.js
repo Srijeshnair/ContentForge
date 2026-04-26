@@ -11,6 +11,10 @@ export default {
           100: '#dbeafe',
           500: '#3b82f6',
         },
+        // Dark theme colors
+        bg: '#0F172A',
+        card: '#1E293B',
+        primary: '#6366F1',
       },
     },
   },
