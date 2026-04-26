@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import OutputCard from '../components/OutputCard';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function GeneratorPage() {
   const [contentType, setContentType] = useState('');
   const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const contentTypes = [
     { value: 'linkedin-post', label: 'LinkedIn Post' },
@@ -12,15 +14,31 @@ export default function GeneratorPage() {
     { value: 'email', label: 'Email' },
   ];
 
-  const handleGenerate = () => {
-    // Placeholder for content generation logic
-    setGeneratedContent(`Generated ${contentType} about: ${topic}`);
-  };
-
-  const handleRegenerate = () => {
-    if (!contentType || !topic) {
+  const handleGenerate = async () => {
+    if (!contentType || !topic || isLoading) {
       return;
     }
+
+    setIsLoading(true);
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Placeholder for content generation logic
+    setGeneratedContent(`Generated ${contentType} about: ${topic}`);
+
+    setIsLoading(false);
+  };
+
+  const handleRegenerate = async () => {
+    if (!contentType || !topic || isLoading) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     handleGenerate();
   };
