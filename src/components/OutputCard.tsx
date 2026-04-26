@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 type OutputCardProps = {
   content: string;
   label?: string;
   onRegenerate: () => void;
+  isLoading?: boolean;
 };
 
-export default function OutputCard({ content, label = 'Generated Content', onRegenerate }: OutputCardProps) {
+export default function OutputCard({ content, label = 'Generated Content', onRegenerate, isLoading = false }: OutputCardProps) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const handleCopy = async () => {
@@ -46,9 +48,18 @@ export default function OutputCard({ content, label = 'Generated Content', onReg
           <button
             type="button"
             onClick={onRegenerate}
-            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card"
+            disabled={isLoading}
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary/90 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card disabled:cursor-not-allowed disabled:bg-slate-600 disabled:shadow-none disabled:opacity-50"
           >
-            Regenerate
+            <span className={`inline-flex items-center transition-all duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+              Regenerate
+            </span>
+            {isLoading && (
+              <span className="absolute inset-0 flex items-center justify-center transition-all duration-300">
+                <LoadingSpinner size="sm" className="mr-2" />
+                <span className="text-xs">Generating...</span>
+              </span>
+            )}
           </button>
         </div>
       </div>
