@@ -10,7 +10,7 @@ export default function AppLayout({ children, onNavigate }: AppLayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-bg text-slate-100">
+    <div className="min-h-screen bg-bg text-slate-100 flex flex-col">
       <header className="border-b border-slate-700 bg-card/90 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-3">
@@ -72,7 +72,9 @@ export default function AppLayout({ children, onNavigate }: AppLayoutProps) {
         )}
       </header>
 
-      {children}
+      <main className="flex-1">
+        {children}
+      </main>
 
       <footer className="border-t border-slate-700 bg-card/90 py-6 mt-auto">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-slate-400 sm:px-6 lg:px-8">
