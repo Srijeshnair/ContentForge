@@ -17,34 +17,82 @@ ContentForge is an AI-powered web application designed to generate high-quality 
 
 ## Tech Stack
 
-* React (Vite)
-* Tailwind CSS
-* JavaScript (ES6+)
-* Google Fonts (Inter)
+* **Frontend:** React (Vite), Tailwind CSS, TypeScript
+* **Backend:** Node.js, Express.js
+* **Other:** Google Fonts (Inter), CORS, dotenv
 
 ---
 
 ## Setup Instructions
 
-### Create Project
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository and navigate to the project directory
+2. Install dependencies:
 
 ```bash
-npm create vite@latest contentforge
-cd contentforge
 npm install
+```
+
+### Running the Application
+
+#### Development Mode (Frontend + Backend)
+
+1. Start the backend server:
+
+```bash
+npm run server
+```
+
+2. In a new terminal, start the frontend development server:
+
+```bash
 npm run dev
 ```
 
-### Install Tailwind CSS
+The frontend will be available at `http://localhost:4173` and will proxy API requests to `http://localhost:5000`.
+
+#### Production Build
 
 ```bash
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
+npm run build
+npm run preview
 ```
 
-### Configure Tailwind
+---
 
-Update `tailwind.config.js`:
+## Backend API
+
+The backend is built with Node.js and Express.js, providing RESTful API endpoints.
+
+### Current Endpoints
+
+- `GET /` - Welcome message
+- `GET /api/health` - Health check
+- `GET /api/test` - Test API route
+
+### Project Structure
+
+```
+backend/
+├── server.js          # Main server file
+├── routes/
+│   └── api.js         # API routes
+└── middleware/        # Future middleware
+```
+
+### Adding New Routes
+
+Add new routes in `backend/routes/api.js` or create separate route files and import them in `server.js`.
+
+---
+
+## Frontend Setup
 
 ```javascript
 content: [
