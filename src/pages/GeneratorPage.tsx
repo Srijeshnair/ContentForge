@@ -103,6 +103,12 @@ export default function GeneratorPage() {
                 </span>
               )}
             </button>
+
+            {errorMessage && (
+              <div className="rounded-lg border border-rose-500 bg-rose-950/40 px-4 py-3 text-sm text-rose-200 shadow-sm shadow-rose-900/20">
+                {errorMessage}
+              </div>
+            )}
           </div>
 
           {generatedContent && (
