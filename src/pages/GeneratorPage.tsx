@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import OutputCard from '../components/OutputCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { generateContent } from '../services/api';
 
 export default function GeneratorPage() {
   const [contentType, setContentType] = useState('');
   const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const contentTypes = [
     { value: 'linkedin-post', label: 'LinkedIn Post' },
@@ -20,27 +22,22 @@ export default function GeneratorPage() {
     }
 
     setIsLoading(true);
+    setErrorMessage('');
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Placeholder for content generation logic
-    setGeneratedContent(`Generated ${contentType} about: ${topic}`);
-
-    setIsLoading(false);
+    try {
+      const response = await generateContent({ contentType, topic });
+      setGeneratedContent(response.generatedContent);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to generate content at this time.';
+      setErrorMessage(message);
+      setGeneratedContent('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRegenerate = async () => {
-    if (!contentType || !topic || isLoading) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    handleGenerate();
+    await handleGenerate();
   };
 
   return (
