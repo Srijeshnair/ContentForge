@@ -11,6 +11,11 @@ export default function LoadingSpinner({ size = 'md', className = '' }: LoadingS
   };
 
   return (
-    <div className={`inline-block animate-spin rounded-full border-2 border-slate-600 border-t-primary ${sizeClasses[size]} ${className}`} style={{ animationDuration: '0.75s' }} />
+    <div
+      className={`inline-block animate-spin rounded-full border-2 border-slate-600 border-t-primary ${sizeClasses[size]} ${className}`}
+      style={{ animationDuration: '0.75s' }}
+      role="status"
+      aria-label="Loading"
+    />
   );
 }
