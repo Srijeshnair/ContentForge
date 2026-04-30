@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import OutputCard from '../components/OutputCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorAlert from '../components/ErrorAlert';
+import FieldError from '../components/FieldError';
 import { generateContent } from '../services/api';
+import { validateGeneratorForm, GeneratorFormData, getValidationError } from '../utilities/validation';
+import { parseError, ParsedError } from '../utilities/errorHandler';
 
 export default function GeneratorPage() {
   const [contentType, setContentType] = useState('');
   const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState<ParsedError | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const contentTypes = [
     { value: 'linkedin-post', label: 'LinkedIn Post' },
@@ -16,28 +21,93 @@ export default function GeneratorPage() {
     { value: 'email', label: 'Email' },
   ];
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const validateForm = useCallback((): boolean => {
+    const formData: GeneratorFormData = {
+      contentType: contentType.trim(),
+      topic: topic.trim(),
+    };
+
+    const validation = validateGeneratorForm(formData);
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setError(null);
+      return false;
+    }
+
+    setValidationErrors({});
+    return true;
+  }, [contentType, topic]);
+
+  const handleTopicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTopic(value);
+    
+    // Clear field error when user starts typing
+    if (validationErrors.topic) {
+      setValidationErrors((prev) => {
+        const { topic: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  const handleContentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setContentType(value);
+
+    // Clear field error when user selects
+    if (validationErrors.contentType) {
+      setValidationErrors((prev) => {
+        const { contentType: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const handleGenerate = async () => {
-    if (!contentType || !topic || isLoading) {
+    // Validate form
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    setErrorMessage('');
+    setError(null);
+    setGeneratedContent('');
 
     try {
-      const response = await generateContent({ contentType, topic });
+      const response = await generateContent({
+        contentType: contentType.trim(),
+        topic: topic.trim(),
+      });
       setGeneratedContent(response.generatedContent);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to generate content at this time.';
-      setErrorMessage(message);
+      setValidationErrors({});
+    } catch (err) {
+      const parsedError = parseError(err);
+      setError(parsedError);
       setGeneratedContent('');
+      setValidationErrors({});
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRegenerate = async () => {
+    if (!contentType || !topic || isLoading) {
+      return;
+    }
+    
     await handleGenerate();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isLoading && contentType && topic) {
+      handleGenerate();
+    }
   };
 
   return (
@@ -50,17 +120,30 @@ export default function GeneratorPage() {
 
         <div className={`rounded-xl bg-card p-4 shadow-xl shadow-slate-900/20 transition-all duration-300 sm:p-6 lg:p-8 ${isLoading ? 'scale-[0.99] opacity-90' : 'scale-100 opacity-100'}`}>
           <div className="space-y-4 sm:space-y-6">
+            {/* Error Alert */}
+            {error && (
+              <ErrorAlert
+                type={error.type === 'validation' ? 'warning' : 'error'}
+                message={error.userMessage}
+                onDismiss={clearError}
+                isDismissible={error.isDismissible}
+              />
+            )}
+
             {/* Content Type Dropdown */}
             <div>
               <label htmlFor="content-type" className="block text-sm font-medium text-slate-300 transition-colors duration-200 mb-2">
                 Content Type
+                <span className="text-rose-400 ml-1">*</span>
               </label>
               <select
                 id="content-type"
                 value={contentType}
-                onChange={(e) => setContentType(e.target.value)}
+                onChange={handleContentTypeChange}
                 disabled={isLoading}
-                className="mt-1 block w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2.5 text-slate-100 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed hover:border-slate-500"
+                className={`mt-1 block w-full rounded-lg border ${
+                  validationErrors.contentType ? 'border-rose-500' : 'border-slate-600'
+                } bg-slate-800 px-3 py-2.5 text-slate-100 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed hover:border-slate-500`}
               >
                 <option value="">Select a content type</option>
                 {contentTypes.map((type) => (
@@ -69,22 +152,38 @@ export default function GeneratorPage() {
                   </option>
                 ))}
               </select>
+              {validationErrors.contentType && (
+                <FieldError error={validationErrors.contentType} />
+              )}
             </div>
 
             {/* Topic Input */}
             <div>
               <label htmlFor="topic" className="block text-sm font-medium text-slate-300 transition-colors duration-200 mb-2">
                 Topic
+                <span className="text-rose-400 ml-1">*</span>
               </label>
-              <input
-                type="text"
-                id="topic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter your topic here..."
-                disabled={isLoading}
-                className="mt-1 block w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2.5 text-slate-100 placeholder-slate-400 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed hover:border-slate-500"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="topic"
+                  value={topic}
+                  onChange={handleTopicChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Enter your topic here..."
+                  disabled={isLoading}
+                  maxLength={500}
+                  className={`mt-1 block w-full rounded-lg border ${
+                    validationErrors.topic ? 'border-rose-500' : 'border-slate-600'
+                  } bg-slate-800 px-3 py-2.5 text-slate-100 placeholder-slate-400 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed hover:border-slate-500`}
+                />
+                <div className="absolute right-3 bottom-2.5 text-xs text-slate-500">
+                  {topic.length}/500
+                </div>
+              </div>
+              {validationErrors.topic && (
+                <FieldError error={validationErrors.topic} />
+              )}
             </div>
 
             {/* Generate Button */}
@@ -103,12 +202,6 @@ export default function GeneratorPage() {
                 </span>
               )}
             </button>
-
-            {errorMessage && (
-              <div className="rounded-lg border border-rose-500 bg-rose-950/40 px-4 py-3 text-sm text-rose-200 shadow-sm shadow-rose-900/20">
-                {errorMessage}
-              </div>
-            )}
           </div>
 
           {generatedContent && (
