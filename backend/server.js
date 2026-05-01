@@ -1,9 +1,9 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import apiRoutes from './routes/api.js';
 
-// Load environment variables
+// Load environment variables FIRST before other code runs
 dotenv.config();
 
 const app = express();

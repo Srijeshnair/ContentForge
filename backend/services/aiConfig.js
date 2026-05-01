@@ -1,13 +1,10 @@
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
 export function getAiApiKey() {
-  return OPENAI_API_KEY || GEMINI_API_KEY || null;
+  return process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || null;
 }
 
 export function getAiProvider() {
-  if (OPENAI_API_KEY) return 'openai';
-  if (GEMINI_API_KEY) return 'gemini';
+  if (process.env.OPENAI_API_KEY) return 'openai';
+  if (process.env.GEMINI_API_KEY) return 'gemini';
   return null;
 }
 
