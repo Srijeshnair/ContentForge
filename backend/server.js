@@ -12,6 +12,8 @@ const defaultApiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
 
 if (!defaultApiKey) {
   console.warn('Warning: OPENAI_API_KEY or GEMINI_API_KEY is not set. Configure your API key in .env for production usage.');
+} else {
+  console.log('✓ AI API key configured');
 }
 
 // Middleware
