@@ -2,6 +2,8 @@
 // This file can be expanded with specific route handlers
 
 import express from 'express';
+import { getAiApiKey } from '../services/aiConfig.js';
+
 const router = express.Router();
 
 // Validation constants
@@ -71,6 +73,13 @@ router.get('/test', (req, res) => {
  * }
  */
 router.post('/generate', (req, res) => {
+  const apiKey = getAiApiKey();
+  if (!apiKey) {
+    return res.status(500).json({
+      error: 'Missing API key. Set OPENAI_API_KEY or GEMINI_API_KEY in your environment configuration.',
+    });
+  }
+
   try {
     // Validate request
     const validation = validateGenerateRequest(req.body);

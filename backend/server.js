@@ -8,6 +8,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const defaultApiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
+
+if (!defaultApiKey) {
+  console.warn('Warning: OPENAI_API_KEY or GEMINI_API_KEY is not set. Configure your API key in .env for production usage.');
+}
 
 // Middleware
 app.use(cors()); // Enable CORS for all routes
