@@ -71,8 +71,18 @@ ${humanType.charAt(0).toUpperCase() + humanType.slice(1)}:`;
 
     return generatedContent;
   } catch (error) {
-    console.error('AI generation error:', error);
-    throw new Error('Failed to generate content with AI. Please try again.');
+    const errorMsg = error.error?.message || error.message || 'Unknown error';
+    console.error('AI generation error:', errorMsg);
+    
+    // Handle specific error types
+    if (error.status === 429) {
+      throw new Error('API quota exceeded. Please check your OpenAI plan and billing details.');
+    }
+    if (error.status === 401) {
+      throw new Error('Invalid API key. Please check your OPENAI_API_KEY.');
+    }
+    
+    throw new Error(errorMsg);
   }
 }
 
@@ -108,7 +118,17 @@ export async function testAIPrompt(testInput = 'Hello, can you introduce yoursel
 
     return response;
   } catch (error) {
-    console.error('AI test error:', error);
-    throw new Error('AI test failed. Please check your API key and try again.');
+    const errorMsg = error.error?.message || error.message || 'Unknown error';
+    console.error('AI test error:', errorMsg);
+    
+    // Handle specific error types
+    if (error.status === 429) {
+      throw new Error('API quota exceeded. Please check your OpenAI plan and billing details.');
+    }
+    if (error.status === 401) {
+      throw new Error('Invalid API key. Please check your OPENAI_API_KEY.');
+    }
+    
+    throw new Error(errorMsg);
   }
 }
