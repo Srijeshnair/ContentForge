@@ -1,3 +1,5 @@
+import { ApiError } from './network';
+
 export type ErrorType = 'validation' | 'network' | 'server' | 'timeout' | 'unknown';
 
 export interface ParsedError {
@@ -20,6 +22,43 @@ export function parseError(error: unknown): ParsedError {
     }
   }
 
+  // Handle API errors from fetch
+  if (error instanceof ApiError) {
+    if (error.status === 400) {
+      return {
+        type: 'validation',
+        message: error.message,
+        userMessage: error.message,
+        isDismissible: true,
+      };
+    }
+
+    if (error.status === 429) {
+      return {
+        type: 'server',
+        message: error.message,
+        userMessage: 'Too many requests. Please wait a moment and try again.',
+        isDismissible: true,
+      };
+    }
+
+    if (error.status && error.status >= 500) {
+      return {
+        type: 'server',
+        message: error.message,
+        userMessage: 'Server error. Please try again later.',
+        isDismissible: true,
+      };
+    }
+
+    return {
+      type: 'server',
+      message: error.message,
+      userMessage: error.message.length > 10 ? error.message : 'Unable to process your request. Please try again.',
+      isDismissible: true,
+    };
+  }
+
   // Handle custom validation errors
   if (error instanceof Error && error.message.includes('Validation')) {
     return {
@@ -40,41 +79,9 @@ export function parseError(error: unknown): ParsedError {
     };
   }
 
-  // Handle API errors
+  // Handle generic Error objects
   if (error instanceof Error) {
     const message = error.message;
-    
-    // Check for server errors
-    if (message.includes('500') || message.includes('502') || message.includes('503')) {
-      return {
-        type: 'server',
-        message,
-        userMessage: 'Server error. Please try again later.',
-        isDismissible: true,
-      };
-    }
-
-    // Check for rate limiting
-    if (message.includes('429')) {
-      return {
-        type: 'server',
-        message,
-        userMessage: 'Too many requests. Please wait a moment and try again.',
-        isDismissible: true,
-      };
-    }
-
-    // Check for 404
-    if (message.includes('404')) {
-      return {
-        type: 'server',
-        message,
-        userMessage: 'Service not found. Please refresh and try again.',
-        isDismissible: true,
-      };
-    }
-
-    // Generic error message from server
     return {
       type: 'server',
       message,

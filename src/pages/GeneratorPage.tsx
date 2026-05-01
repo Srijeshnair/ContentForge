@@ -4,7 +4,12 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorAlert from '../components/ErrorAlert';
 import FieldError from '../components/FieldError';
 import { generateContent } from '../services/api';
-import { validateGeneratorForm, GeneratorFormData, getValidationError } from '../utilities/validation';
+import {
+  validateGeneratorForm,
+  normalizeGeneratorForm,
+  GeneratorFormData,
+  getValidationError,
+} from '../utilities/validation';
 import { parseError, ParsedError } from '../utilities/errorHandler';
 
 export default function GeneratorPage() {
@@ -26,13 +31,13 @@ export default function GeneratorPage() {
   }, []);
 
   const validateForm = useCallback((): boolean => {
-    const formData: GeneratorFormData = {
-      contentType: contentType.trim(),
-      topic: topic.trim(),
-    };
+    const formData = normalizeGeneratorForm({
+      contentType,
+      topic,
+    });
 
     const validation = validateGeneratorForm(formData);
-    
+
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
       setError(null);
@@ -80,10 +85,12 @@ export default function GeneratorPage() {
     setGeneratedContent('');
 
     try {
-      const response = await generateContent({
-        contentType: contentType.trim(),
-        topic: topic.trim(),
+      const normalizedRequest = normalizeGeneratorForm({
+        contentType,
+        topic,
       });
+
+      const response = await generateContent(normalizedRequest);
       setGeneratedContent(response.generatedContent);
       setValidationErrors({});
     } catch (err) {
@@ -152,8 +159,8 @@ export default function GeneratorPage() {
                   </option>
                 ))}
               </select>
-              {validationErrors.contentType && (
-                <FieldError error={validationErrors.contentType} />
+              {getValidationError('contentType', validationErrors) && (
+                <FieldError error={getValidationError('contentType', validationErrors)!} />
               )}
             </div>
 
@@ -181,8 +188,8 @@ export default function GeneratorPage() {
                   {topic.length}/500
                 </div>
               </div>
-              {validationErrors.topic && (
-                <FieldError error={validationErrors.topic} />
+              {getValidationError('topic', validationErrors) && (
+                <FieldError error={getValidationError('topic', validationErrors)!} />
               )}
             </div>
 

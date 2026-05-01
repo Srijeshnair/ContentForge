@@ -47,3 +47,10 @@ export function getValidationError(
 ): string | null {
   return errors[fieldName] || null;
 }
+
+export function normalizeGeneratorForm(data: GeneratorFormData): GeneratorFormData {
+  return {
+    contentType: data.contentType.trim(),
+    topic: data.topic.trim(),
+  };
+}
