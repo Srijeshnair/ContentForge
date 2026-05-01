@@ -119,7 +119,7 @@ router.post('/test-ai', async (req, res) => {
  *   generatedContent: string
  * }
  */
-router.post('/generate', (req, res) => {
+router.post('/generate', async (req, res) => {
   const apiKey = getAiApiKey();
   if (!apiKey) {
     return res.status(500).json({
