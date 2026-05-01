@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
 import { requireAiApiKey, getAiProvider } from './aiConfig.js';
 
-const openai = new OpenAI({
-  apiKey: requireAiApiKey(),
-});
+let openaiClient = null;
+
+function getOpenAIClient() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: requireAiApiKey(),
+    });
+  }
+  return openaiClient;
+}
 
 const MODEL = 'gpt-4o-mini';
 const MAX_TOKENS = 1000;
@@ -40,7 +47,7 @@ Requirements:
 ${humanType.charAt(0).toUpperCase() + humanType.slice(1)}:`;
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: MODEL,
       messages: [
         {
@@ -81,7 +88,7 @@ export async function testAIPrompt(testInput = 'Hello, can you introduce yoursel
   }
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: MODEL,
       messages: [
         {
