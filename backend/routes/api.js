@@ -3,6 +3,7 @@
 
 import express from 'express';
 import { getAiApiKey } from '../services/aiConfig.js';
+import { generateContentWithAI, testAIPrompt } from '../services/aiService.js';
 
 const router = express.Router();
 
@@ -58,6 +59,52 @@ router.get('/test', (req, res) => {
 });
 
 /**
+ * Test AI integration
+ * POST /api/test-ai
+ *
+ * Request body:
+ * {
+ *   prompt?: string (optional test prompt)
+ * }
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   response: string,
+ *   provider: string
+ * }
+ */
+router.post('/test-ai', async (req, res) => {
+  const apiKey = getAiApiKey();
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: 'Missing API key. Set OPENAI_API_KEY or GEMINI_API_KEY in your environment configuration.',
+    });
+  }
+
+  try {
+    const { prompt } = req.body;
+    const testInput = prompt || 'Hello! Please introduce yourself briefly.';
+
+    const aiResponse = await testAIPrompt(testInput);
+
+    res.json({
+      success: true,
+      response: aiResponse,
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+    });
+  } catch (error) {
+    console.error('AI test endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'AI test failed. Please check your API key and try again.',
+    });
+  }
+});
+
+/**
  * Generate content from user input
  * POST /api/generate
  * 
@@ -89,12 +136,9 @@ router.post('/generate', (req, res) => {
 
     const { contentType, topic } = req.body;
     const humanType = SUPPORTED_TYPES[contentType] || 'Content';
-    
-    // Simulate content generation
-    // In production, this would call an AI API
-    const generatedContent = `Here is a polished ${humanType.toLowerCase()} about "${topic}":\n\n` +
-      `Hi there! If you want to connect with your audience on ${topic}, try sharing a thoughtful, value-driven message that highlights your perspective and invites conversation. ` +
-      `Use a strong opening, keep the tone warm and confident, and wrap up with a clear call to action to keep readers engaged.`;
+
+    // Generate content using AI
+    const generatedContent = await generateContentWithAI(contentType, topic);
 
     res.json({ generatedContent });
   } catch (error) {
