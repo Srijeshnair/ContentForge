@@ -3,7 +3,7 @@ import OutputCard from '../components/OutputCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorAlert from '../components/ErrorAlert';
 import FieldError from '../components/FieldError';
-import { generateContent } from '../services/api';
+import { generateContent, testAiIntegration } from '../services/api';
 import {
   validateGeneratorForm,
   normalizeGeneratorForm,
@@ -16,7 +16,10 @@ export default function GeneratorPage() {
   const [contentType, setContentType] = useState('');
   const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
+  const [aiTestPrompt, setAiTestPrompt] = useState('Hello, can you introduce yourself briefly?');
+  const [aiTestResponse, setAiTestResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTestingAi, setIsTestingAi] = useState(false);
   const [error, setError] = useState<ParsedError | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -100,6 +103,32 @@ export default function GeneratorPage() {
       setValidationErrors({});
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAiTest = async () => {
+    if (!aiTestPrompt.trim()) {
+      setError({
+        type: 'validation',
+        message: 'Test prompt is required.',
+        userMessage: 'Please enter a prompt to test the AI endpoint.',
+        isDismissible: true,
+      });
+      return;
+    }
+
+    setIsTestingAi(true);
+    setError(null);
+    setAiTestResponse('');
+
+    try {
+      const result = await testAiIntegration(aiTestPrompt.trim());
+      setAiTestResponse(result.response);
+    } catch (err) {
+      setError(parseError(err));
+      setAiTestResponse('');
+    } finally {
+      setIsTestingAi(false);
     }
   };
 
