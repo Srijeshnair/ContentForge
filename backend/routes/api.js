@@ -59,6 +59,40 @@ router.get('/test', (req, res) => {
 });
 
 /**
+ * Test AI integration with mock response (no quota required)
+ * POST /api/test-ai-mock
+ *
+ * Request body:
+ * {
+ *   prompt?: string (optional test prompt)
+ * }
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   response: string,
+ *   provider: string,
+ *   model: string,
+ *   isMock: boolean
+ * }
+ */
+router.post('/test-ai-mock', (req, res) => {
+  const { prompt } = req.body;
+
+  // Mock response that demonstrates the integration structure
+  const mockResponse = `I'm an AI assistant powered by OpenAI's GPT-4o-mini model. I'm designed to help generate high-quality content for various platforms including LinkedIn posts, social media captions, and emails. I can provide thoughtful, engaging content tailored to your specific needs and audience.`;
+
+  res.json({
+    success: true,
+    response: mockResponse,
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    isMock: true,
+    note: 'This is a mock response. Use /api/test-ai for real API calls (requires OpenAI quota).',
+  });
+});
+
+/**
  * Test AI integration
  * POST /api/test-ai
  *
