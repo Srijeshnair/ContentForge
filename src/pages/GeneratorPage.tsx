@@ -238,6 +238,39 @@ export default function GeneratorPage() {
                 </span>
               )}
             </button>
+
+            {/* AI Integration Test */}
+            <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex-1">
+                  <label htmlFor="ai-test-prompt" className="block text-sm font-medium text-slate-300 mb-2">
+                    AI Integration Test Prompt
+                  </label>
+                  <input
+                    id="ai-test-prompt"
+                    type="text"
+                    value={aiTestPrompt}
+                    onChange={(e) => setAiTestPrompt(e.target.value)}
+                    disabled={isTestingAi}
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2.5 text-slate-100 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  />
+                </div>
+                <button
+                  onClick={handleAiTest}
+                  disabled={isTestingAi}
+                  className="mt-3 inline-flex items-center justify-center rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-secondary/90 disabled:opacity-50 sm:mt-0"
+                >
+                  {isTestingAi ? 'Testing...' : 'Test AI Integration'}
+                </button>
+              </div>
+
+              {aiTestResponse && (
+                <div className="mt-4 rounded-lg bg-slate-800 p-4 text-slate-100">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">AI Test Response</p>
+                  <p className="mt-2 whitespace-pre-line text-sm text-slate-200">{aiTestResponse}</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {generatedContent && (
